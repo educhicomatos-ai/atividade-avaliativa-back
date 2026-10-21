@@ -50,15 +50,16 @@ function criarPet(dsNome, dsEspecie, nuIdade) {
 }
 
 function atualizarPet(idPet, { dsNome, dsEspecie, nuIdade, fgAdotado }) {
-    
     let pet = acharUm(idPet);
     if (!pet) {
         return null;
     }
-    pet.dsNome = dsNome;
-    pet.dsEspecie = dsEspecie;
-    pet.nuIdade = nuIdade;
-    pet.fgAdotado = fgAdotado;
+
+    if (dsNome !== undefined) pet.dsNome = dsNome;
+    if (dsEspecie !== undefined) pet.dsEspecie = dsEspecie;
+    if (nuIdade !== undefined) pet.nuIdade = nuIdade;
+    if (fgAdotado !== undefined) pet.fgAdotado = fgAdotado;
+
     return pet;
 }
 
@@ -70,6 +71,7 @@ function deletarPet(idPet) {
         return null;
     }
     let petRemovido = pets.splice(index, 1)[0];
+    return petRemovido;
 }
 
 app.get("/pets", (req, res) => {

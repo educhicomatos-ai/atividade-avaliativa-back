@@ -19,7 +19,6 @@
   },
   "homepage": "https://github.com/educhicomatos-ai/atividade-avaliativa-back#readme",
   "dependencies": {
-    "expres": "^0.0.5",
     "express": "^5.3.0"
   }
 }
