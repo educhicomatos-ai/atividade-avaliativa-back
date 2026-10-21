@@ -49,7 +49,8 @@ function criarPet(dsNome, dsEspecie, nuIdade) {
     return novoPet;
 }
 
-function atualizarPet(idPet, dsNome, dsEspecie, nuIdade, fgAdotado) {
+function atualizarPet(idPet, { dsNome, dsEspecie, nuIdade, fgAdotado }) {
+    
     let pet = acharUm(idPet);
     if (!pet) {
         return null;
@@ -110,8 +111,7 @@ app.patch("/pets/:id", (req, res) => {
         return res.status(400).json({ mensagem: "identificador deve ser um numero" });
     }
 
-    const pet = acharUm(id);
-    if (!pet) {
+    if (!acharUm(id)) {
         return res.status(404).json();
     }
 
@@ -130,12 +130,9 @@ app.patch("/pets/:id", (req, res) => {
         return res.status(400).json({ mensagem: "fgAdotado deve ser boolean" });
     }
 
-    if (dsNome !== undefined) pet.dsNome = dsNome;
-    if (dsEspecie !== undefined) pet.dsEspecie = dsEspecie;
-    if (nuIdade !== undefined) pet.nuIdade = nuIdade;
-    if (fgAdotado !== undefined) pet.fgAdotado = fgAdotado;
+    const petEditado = atualizarPet(id, { dsNome, dsEspecie, nuIdade, fgAdotado });
 
-    return res.status(200).json(pet);
+    return res.status(200).json(petEditado);
 });
 
 app.delete("/pets/:id", (req, res) => {
