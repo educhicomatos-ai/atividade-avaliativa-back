@@ -8,7 +8,7 @@ const pets = [
     {
     "idPet": 1,
     "dsNome": "Rex",
-    "dsEspecie": "cachorro",
+    "dsEspecie": "Cachorro",
     "nuIdade": 3,
     "fgAdotado": false
     },
@@ -68,8 +68,7 @@ function deletarPet(idPet) {
     if (index === -1) {
         return null;
     }
-    let petRemovido = pets.splice(index, 1);
-    return petRemovido;
+    let petRemovido = pets.splice(index, 1)[0];
 }
 
 app.get("/pets", (req, res) => {
@@ -91,7 +90,7 @@ app.get("/pets/:id", (req, res) => {
 });
 
 app.post("/pets", (req, res) => {
-    const { dsNome, dsEspecie, nuIdade } = req.body;    
+    const { dsNome, dsEspecie, nuIdade } = req.body ?? {};    
 
     if (!dsNome || !dsEspecie) {
         return res.status(400).json({ mensagem: "nome e espécie são obrigatórios" });
