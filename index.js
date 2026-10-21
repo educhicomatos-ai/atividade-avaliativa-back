@@ -41,14 +41,10 @@ function acharUm(idPet) {
     return pet;
 }
 
+let proximoId = 4;
+
 function criarPet(dsNome, dsEspecie, nuIdade) {
-    let novoPet = {
-        idPet: pets.length + 1,
-        dsNome: dsNome,
-        dsEspecie: dsEspecie,
-        nuIdade: nuIdade,
-        fgAdotado: false
-    };
+    const novoPet = { idPet: proximoId++, dsNome, dsEspecie, nuIdade, fgAdotado: false };
     pets.push(novoPet);
     return novoPet;
 }
@@ -95,81 +91,67 @@ app.get("/pets/:id", (req, res) => {
 });
 
 app.post("/pets", (req, res) => {
-    const { dsNome, dsEspecie, nuIdade } = req.body;
+    const { dsNome, dsEspecie, nuIdade } = req.body;    
+
+    if (!dsNome || !dsEspecie) {
+        return res.status(400).json({ mensagem: "nome e espécie são obrigatórios" });
+    }
+
+    if (!Number.isInteger(nuIdade) || nuIdade < 0) {
+        return res.status(400).json({ mensagem: "idade deve ser um inteiro maior ou igual a 0" });
+    }
+
     const novoPet = criarPet(dsNome, dsEspecie, nuIdade);
-
-    if (dsNome === undefined || dsEspecie === undefined ) {
-        return res.status(400).json({ "mensagem": "..." });
-
-    }
-
-    if (nuIdade === undefined || nuIdade < 0 || nuIdade !== parseInt(nuIdade)) {
-        return res.status(400).json({ "mensagem": "..." });
-    }
-    return res.status(201).json({ "mensagem": "pet criado", "pet": novoPet });
+    return res.status(201).json({ mensagem: "pet criado", pet: novoPet });
 });
 
 app.patch("/pets/:id", (req, res) => {
     const id = parseInt(req.params.id);
-    
-      if (isNaN(id)) {
-        return res
-          .status(400)
-          .json({ "mensagem": "identificador deve ser um numero" });
-      }
+    if (isNaN(id)) {
+        return res.status(400).json({ mensagem: "identificador deve ser um numero" });
+    }
 
-      if (!acharUm(id)) {
-        return res
-          .status(404).json();
-      }
-    
-      let novo_nome = req.body.dsNome;
-      let nova_especie = req.body.dsEspecie;
-      let nova_idade = req.body.nuIdade;
-      let adotado = req.body.fgAdotado;
+    const pet = acharUm(id);
+    if (!pet) {
+        return res.status(404).json();
+    }
 
-      if (req.body === undefined || req.body === null) {
-        return res
-          .status(400)
-          .json({ "mensagem": "..." });
-      }
+    const { dsNome, dsEspecie, nuIdade, fgAdotado } = req.body ?? {};
 
-      if (!novo_nome || !nova_especie) {
-        return res
-          .status(400)
-          .json({ "mensagem": "..." });
-      }
+    if (dsNome !== undefined && !dsNome) {
+        return res.status(400).json({ mensagem: "nome inválido" });
+    }
+    if (dsEspecie !== undefined && !dsEspecie) {
+        return res.status(400).json({ mensagem: "espécie inválida" });
+    }
+    if (nuIdade !== undefined && (!Number.isInteger(nuIdade) || nuIdade < 0)) {
+        return res.status(400).json({ mensagem: "idade inválida" });
+    }
+    if (fgAdotado !== undefined && typeof fgAdotado !== "boolean") {
+        return res.status(400).json({ mensagem: "fgAdotado deve ser boolean" });
+    }
 
-      if ( fgAdotado !== "boolean") {
-        return res
-          .status(400)
-          .json({ "mensagem": "..." });
-      }
-    
-      let pet_editado = atualizarPet(
-        id,
-        novo_nome,
-        nova_especie,
-        nova_idade,
-        adotado
-      );
-    
-      return res.status(200).json(pet_editado);
+    if (dsNome !== undefined) pet.dsNome = dsNome;
+    if (dsEspecie !== undefined) pet.dsEspecie = dsEspecie;
+    if (nuIdade !== undefined) pet.nuIdade = nuIdade;
+    if (fgAdotado !== undefined) pet.fgAdotado = fgAdotado;
+
+    return res.status(200).json(pet);
 });
 
 app.delete("/pets/:id", (req, res) => {
-    const { id } = req.params;
-    const petRemovido = deletarPet(parseInt(id));
+    const id = parseInt(req.params.id);
 
-    if (isNaN(parseInt(id))) {
-        return res.status(400).json({ "mensagem": "identificador deve ser um numero" });
+    if (isNaN(id)) {
+        return res.status(400).json({ mensagem: "identificador deve ser um numero" });
     }
-    
+
+    const petRemovido = deletarPet(id);
     if (!petRemovido) {
         return res.status(404).json();
     }
-    res.json(petRemovido);
-    res.status(204).json();
+
+    return res.status(204).send();
 });
 
 app.listen(3000);
